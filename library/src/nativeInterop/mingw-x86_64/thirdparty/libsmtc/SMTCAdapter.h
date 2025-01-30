@@ -12,7 +12,10 @@
 
 extern "C"{
 
-	SMTC_API int init();
+	SMTC_API int init(bool);
+
+	SMTC_API const wchar_t* getIdentity();
+	SMTC_API void setIdentity(const wchar_t*);
 
 	SMTC_API void setOnPlay(void (*)(void*));
 	SMTC_API void setOnPause(void (*)(void*));

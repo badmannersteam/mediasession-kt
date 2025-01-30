@@ -1,9 +1,11 @@
 package dev.toastbits.mediasession.smtc
 
-import dev.toastbits.mediasession.MediaSessionLoopMode
 
 interface SMTCAdapter {
-    fun init(): Int
+    fun init(initWinRtApartment: Boolean): Int
+
+    fun getIdentity(): String
+    fun setIdentity(identity: String)
 
     var onPause: (() -> Unit)?
     var onStop: (() -> Unit)?

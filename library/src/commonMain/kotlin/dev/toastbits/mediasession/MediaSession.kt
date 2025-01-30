@@ -27,4 +27,4 @@ interface MediaSession: MediaSessionProperties {
     }
 }
 
-expect fun createMediaSession(getPositionMs: (() -> Long)? = null): MediaSession?
+expect fun createMediaSession(getPositionMs: (() -> Long)? = null, initWinRtApartment: Boolean = true): MediaSession?

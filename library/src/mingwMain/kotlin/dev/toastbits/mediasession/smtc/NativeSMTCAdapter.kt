@@ -7,8 +7,8 @@ import kotlinx.cinterop.wcstr
 import kotlinx.cinterop.toKString
 
 class NativeSMTCAdapter: SMTCAdapter {
-    override fun init(): Int {
-        val result: Int = libsmtc.init()
+    override fun init(initWinRtApartment: Boolean): Int {
+        val result: Int = libsmtc.init(initWinRtApartment)
         if (result != 0) {
             return result
         }
@@ -29,6 +29,9 @@ class NativeSMTCAdapter: SMTCAdapter {
 
         return 0
     }
+
+    override fun getIdentity(): String = libsmtc.getIdentity()!!.toKString()
+    override fun setIdentity(identity: String) = libsmtc.setIdentity(identity.wcstr)
 
     override var onPause: (() -> Unit)? = null
     override var onStop: (() -> Unit)? = null

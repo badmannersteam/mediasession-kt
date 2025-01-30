@@ -6,7 +6,7 @@ import dev.toastbits.mediasession.MediaSessionLoopMode
 import dev.toastbits.mediasession.MediaSessionMetadata
 import dev.toastbits.mediasession.MediaSessionPlaybackStatus
 
-open class SMTCMediaSession(private val smtc: SMTCAdapter): MediaSessionProperties, MediaSession {
+open class SMTCMediaSession(private val smtc: SMTCAdapter, initWinRtApartment: Boolean): MediaSessionProperties, MediaSession {
     private var session_enabled: Boolean = false
     private var _art_url: String? = null
 
@@ -16,7 +16,7 @@ open class SMTCMediaSession(private val smtc: SMTCAdapter): MediaSessionProperti
     init {
         val result: Int = 
             try {
-                smtc.init()
+                smtc.init(initWinRtApartment)
             }
             catch (e: Throwable) {
                 throw RuntimeException("Failed to initialise smtc", e)
@@ -109,7 +109,7 @@ open class SMTCMediaSession(private val smtc: SMTCAdapter): MediaSessionProperti
     }
 
     override val identity: String
-        get() = ""
+        get() = smtc.getIdentity()
     override val desktop_entry: String?
         get() = null
     override val supported_uri_schemes: List<String>
@@ -164,7 +164,7 @@ open class SMTCMediaSession(private val smtc: SMTCAdapter): MediaSessionProperti
     override val minimum_rate: Float
         get() = 0f
 
-    override fun setIdentity(identity: String) {}
+    override fun setIdentity(identity: String) = smtc.setIdentity(identity)
 
     override fun setDesktopEntry(desktop_entry: String?) {}
 

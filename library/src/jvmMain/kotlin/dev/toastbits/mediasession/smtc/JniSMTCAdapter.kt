@@ -3,9 +3,7 @@ package dev.toastbits.mediasession.smtc
 import com.sun.jna.Native
 import com.sun.jna.Library
 import com.sun.jna.win32.W32APIOptions
-import com.sun.jna.Pointer
 import com.sun.jna.Callback
-import dev.toastbits.mediasession.MediaSessionLoopMode
 
 class JniSMTCAdapter: SMTCAdapter {
     private lateinit var libsmtc: SMTCAdapterLibrary
@@ -20,7 +18,7 @@ class JniSMTCAdapter: SMTCAdapter {
     private var onSetLoopCallback: Callback? = null
     private var onSetShuffleCallback: Callback? = null
 
-    override fun init(): Int {
+    override fun init(initWinRtApartment: Boolean): Int {
         libsmtc = 
             Native.loadLibrary(
                 "libSMTCAdapter.dll",
@@ -28,7 +26,7 @@ class JniSMTCAdapter: SMTCAdapter {
                 W32APIOptions.DEFAULT_OPTIONS
             )
 
-        val result: Int = libsmtc.init()
+        val result: Int = libsmtc.init(initWinRtApartment)
         if (result != 0) {
             return result
         }
@@ -36,6 +34,9 @@ class JniSMTCAdapter: SMTCAdapter {
         libsmtc.setMediaType(0)
         return 0
     }
+
+    override fun getIdentity(): String = libsmtc.getIdentity()
+    override fun setIdentity(identity: String) = libsmtc.setIdentity(identity)
 
     override var onPause: (() -> Unit)? = null
         set(value) {

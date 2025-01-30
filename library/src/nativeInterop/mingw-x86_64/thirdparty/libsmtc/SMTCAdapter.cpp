@@ -45,7 +45,7 @@ winrt::event_token rate_revoker;
 winrt::event_token shuffle_revoker;
 winrt::event_token position_revoker;
 
-SMTC_API int init()
+SMTC_API int init(bool initWinRtApartment)
 {
 	HMODULE library = LoadLibraryA("Windows.Media.Playback.MediaPlayer.dll");
 	if (library == NULL) {
@@ -53,7 +53,9 @@ SMTC_API int init()
 	}
 	FreeLibrary(library);
 
-	winrt::init_apartment();
+	if (initWinRtApartment) {
+		winrt::init_apartment();
+	}
 
 	auto mp = MediaPlayer();
 	smtc = mp.SystemMediaTransportControls();
@@ -125,6 +127,19 @@ SMTC_API int init()
 	);
 
 	return 0;
+}
+
+SMTC_API const wchar_t* getIdentity()
+{
+	updater = smtc.DisplayUpdater();
+	return updater.AppMediaId().c_str();
+}
+
+SMTC_API void setIdentity(const wchar_t* identity)
+{
+	SetCurrentProcessExplicitAppUserModelID(identity);
+	updater = smtc.DisplayUpdater();
+	updater.AppMediaId(hstring(identity));
 }
 
 SMTC_API void setCallbackData(void* data)

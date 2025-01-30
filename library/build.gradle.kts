@@ -53,7 +53,7 @@ kotlin {
             dependencies {
                 implementation("com.github.hypfvieh:dbus-java-core:5.0.0")
                 implementation("com.github.hypfvieh:dbus-java-transport-jnr-unixsocket:5.0.0")
-                implementation("net.java.dev.jna:jna:5.14.0")
+                implementation("net.java.dev.jna:jna-jpms:5.15.0")
             }
         }
     }

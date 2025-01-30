@@ -52,7 +52,7 @@ import libdbus.dbus_message_new_signal
 import libdbus.dbus_message_unref
 import dev.toastbits.mediasession.mpris.createDBusVariant
 
-actual fun createMediaSession(getPositionMs: (() -> Long)?): MediaSession? = 
+actual fun createMediaSession(getPositionMs: (() -> Long)?, initWinRtApartment: Boolean): MediaSession? =
     object : LinuxMediaSession() {
         override fun getPositionMs(): Long = getPositionMs?.invoke() ?: super.getPositionMs()
     }
