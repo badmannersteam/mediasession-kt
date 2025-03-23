@@ -5,9 +5,9 @@
 #define EXPORT_SMTC
 
 #if defined EXPORT_SMTC
-#define SMTC_API //__declspec(dllexport)
+#define SMTC_API __declspec(dllexport)
 #else
-#define SMTC_API //__declspec(dllimport)
+#define SMTC_API __declspec(dllimport)
 #endif
 
 extern "C"{

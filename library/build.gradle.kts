@@ -1,8 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
-import com.vanniktech.maven.publish.KotlinMultiplatform
-import com.vanniktech.maven.publish.JavadocJar
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.dokka")
@@ -11,26 +6,8 @@ plugins {
 }
 
 kotlin {
-    jvm()
-
-    val linux_targets: List<KotlinNativeTarget> = listOf(linuxX64(), linuxArm64())
-    for (target in linux_targets) {
-        target.compilations.getByName("main") {
-            cinterops {
-                val libdbus by creating
-            }
-        }
-    }
-
-    mingwX64().apply {
-        compilations.getByName("main") {
-            cinterops {
-                val libsmtc by creating {
-                    includeDirs(file("src/nativeInterop/mingw-x86_64/include"))
-                    extraOpts("-libraryPath", file("src/nativeInterop/mingw-x86_64/thirdparty/libsmtc/build").absolutePath)
-                }
-            }
-        }
+    jvm {
+        withSourcesJar()
     }
 
     applyDefaultHierarchyTemplate()
@@ -59,59 +36,14 @@ kotlin {
     }
 }
 
-tasks.register<Copy>("copyX86Dll") {
-    from("src/nativeInterop/mingw-x86_64/thirdparty/libsmtc/build/libSMTCAdapter.dll")
-    into("src/jvmMain/resources/win32-x86")
-}
-
+/**
+ * For build call the following from x64 VS CLI:
+ * ```
+ * MSBuild.exe -m /property:Platform=x64 /property:Configuration=Release
+ * ```
+ */
 tasks.register<Copy>("copyX64Dll") {
-    from("src/nativeInterop/mingw-x86_64/thirdparty/libsmtc/build/libSMTCAdapter.dll")
+    from("src/nativeInterop/mingw-x86_64/thirdparty/libsmtc/bin/Release/x64/SMTCAdapter.dll")
     into("src/jvmMain/resources/win32-x86-64")
-}
-
-tasks.getByName("jvmProcessResources") {
-    dependsOn("copyX86Dll")
-    dependsOn("copyX64Dll")
-}
-
-mavenPublishing {
-    coordinates("dev.toastbits", "mediasession", "0.1.1")
-
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
-
-    configure(KotlinMultiplatform(
-        javadocJar = JavadocJar.Dokka("dokkaHtml"),
-        sourcesJar = true
-    ))
-
-    pom {
-        name.set("mediasession-kt")
-        description.set("A Kotlin Multiplatform library for emitting a system media session")
-        url.set("https://github.com/toasterofbread/mediasession-kt")
-        inceptionYear.set("2024")
-
-        licenses {
-            license {
-                name.set("Apache-2.0")
-                url.set("https://www.apache.org/licenses/LICENSE-2.0")
-            }
-        }
-        developers {
-            developer {
-                id.set("toasterofbread")
-                name.set("Talo Halton")
-                email.set("talohalton@gmail.com")
-                url.set("https://github.com/toasterofbread")
-            }
-        }
-        scm {
-            connection.set("https://github.com/toasterofbread/mediasession-kt.git")
-            url.set("https://github.com/toasterofbread/mediasession-kt")
-        }
-        issueManagement {
-            system.set("Github")
-            url.set("https://github.com/toasterofbread/mediasession-kt/issues")
-        }
-    }
+    rename { "libSMTCAdapter.dll" }
 }

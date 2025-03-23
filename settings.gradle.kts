@@ -26,4 +26,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "mediasession-kt"
 include(":library")
-include(":sample")
+//include(":sample")

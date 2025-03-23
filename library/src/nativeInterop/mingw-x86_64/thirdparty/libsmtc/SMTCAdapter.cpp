@@ -7,7 +7,8 @@
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Storage.h>
 #include <iostream>
-#include <libloaderapi.h>
+//#include <libloaderapi.h>
+#include <shobjidl_core.h>
 
 using namespace winrt;
 using namespace Windows::Media;
@@ -47,11 +48,11 @@ winrt::event_token position_revoker;
 
 SMTC_API int init(bool initWinRtApartment)
 {
-	HMODULE library = LoadLibraryA("Windows.Media.Playback.MediaPlayer.dll");
+	/*HMODULE library = LoadLibraryA("Windows.Media.Playback.MediaPlayer.dll");
 	if (library == NULL) {
 		return 1;
 	}
-	FreeLibrary(library);
+	FreeLibrary(library);*/
 
 	if (initWinRtApartment) {
 		winrt::init_apartment();
