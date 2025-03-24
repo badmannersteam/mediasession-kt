@@ -23,7 +23,8 @@ interface MediaSession: MediaSessionProperties {
     fun onPositionChanged()
 
     companion object {
-        fun create(getPositionMs: (() -> Long)? = null): MediaSession? = createMediaSession(getPositionMs)
+        fun create(getPositionMs: (() -> Long)? = null, initWinRtApartment: Boolean = true): MediaSession? =
+            createMediaSession(getPositionMs, initWinRtApartment)
     }
 }
 

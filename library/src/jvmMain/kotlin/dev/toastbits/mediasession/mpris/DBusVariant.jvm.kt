@@ -14,6 +14,3 @@ actual fun <T> createDBusVariant(
 
 actual inline fun <reified T> createDBusVariant(value: T): DBusVariant<T> =
     Variant(value)
-
-actual inline fun <reified T : Any> createDBusVariant(value: Array<T>): DBusVariant<Array<DBusVariant<T>>> =
-    Variant(Array(value.size) { Variant(value[it]) })
