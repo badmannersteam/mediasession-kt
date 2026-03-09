@@ -47,3 +47,44 @@ tasks.register<Copy>("copyX64Dll") {
     into("src/jvmMain/resources/win32-x86-64")
     rename { "libSMTCAdapter.dll" }
 }
+
+/**
+ * Build the macOS Now Playing dylib for arm64 (Apple Silicon).
+ * Run: ./gradlew buildMacOsAarch64Dylib
+ */
+tasks.register<Exec>("buildMacOsAarch64Dylib") {
+    workingDir("src/nativeInterop/macos-aarch64")
+    inputs.file("src/nativeInterop/macos-aarch64/nowplaying.m")
+    outputs.file("${projectDir}/src/jvmMain/resources/darwin-aarch64/libnowplaying.dylib")
+    commandLine(
+        "clang",
+        "-fobjc-arc",
+        "-framework", "Foundation",
+        "-framework", "AppKit",
+        "-framework", "MediaPlayer",
+        "-dynamiclib",
+        "-o", "${projectDir}/src/jvmMain/resources/darwin-aarch64/libnowplaying.dylib",
+        "nowplaying.m"
+    )
+}
+
+/**
+ * Build the macOS Now Playing dylib for x86_64 (Intel).
+ * Run: ./gradlew buildMacOsX8664Dylib
+ */
+tasks.register<Exec>("buildMacOsX8664Dylib") {
+    workingDir("src/nativeInterop/macos-aarch64")
+    inputs.file("src/nativeInterop/macos-aarch64/nowplaying.m")
+    outputs.file("${projectDir}/src/jvmMain/resources/darwin-x86-64/libnowplaying.dylib")
+    commandLine(
+        "clang",
+        "-fobjc-arc",
+        "-framework", "Foundation",
+        "-framework", "AppKit",
+        "-framework", "MediaPlayer",
+        "-target", "x86_64-apple-macos10.13.2",
+        "-dynamiclib",
+        "-o", "${projectDir}/src/jvmMain/resources/darwin-x86-64/libnowplaying.dylib",
+        "nowplaying.m"
+    )
+}
