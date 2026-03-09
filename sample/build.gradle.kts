@@ -29,7 +29,3 @@ kotlin {
         val jvmMain by getting
     }
 }
-
-application {
-    mainClass.set("dev.toastbits.sample.SampleKt")
-}
