@@ -16,22 +16,6 @@ class MacOSMediaSession(private val getPositionMs: (() -> Long)?) : MediaSession
     private var _shuffle: Boolean = false
     private var _rate: Float = 1f
 
-    // Pump the NSRunLoop on a dedicated daemon thread so MPRemoteCommandCenter
-    // callbacks are dispatched. This mirrors the approach in the prototype.
-    private val runLoopThread = Thread {
-        while (!Thread.currentThread().isInterrupted) {
-            try {
-                adapter.runLoopTick(0.1)
-            } catch (_: Exception) {
-                break
-            }
-        }
-    }.also {
-        it.isDaemon = true
-        it.name = "NowPlaying-RunLoop"
-        it.start()
-    }
-
     init {
         adapter.registerCallbacks(
             onPlay     = { onPlay?.invoke() },

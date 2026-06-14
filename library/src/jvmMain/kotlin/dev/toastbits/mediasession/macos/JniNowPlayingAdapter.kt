@@ -63,8 +63,6 @@ internal class JniNowPlayingAdapter {
 
     fun setArtworkUrl(url: String) = lib.nowplaying_set_artwork_url(url)
 
-    fun runLoopTick(secs: Double) = lib.nowplaying_run_loop_tick(secs)
-
     fun clear() = lib.nowplaying_clear(center)
 
     fun release() = lib.nowplaying_release_center(center)
@@ -89,7 +87,6 @@ private interface NowPlayingLibrary : Library {
         trackNumber: Int
     )
     fun nowplaying_set_artwork_url(url: String)
-    fun nowplaying_run_loop_tick(secs: Double)
     fun nowplaying_clear(center: Pointer)
     fun nowplaying_release_center(center: Pointer)
 }

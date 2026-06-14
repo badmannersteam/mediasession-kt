@@ -144,10 +144,6 @@ void nowplaying_set_artwork_url(const char *url_str) {
     });
 }
 
-void nowplaying_run_loop_tick(double secs) {
-    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:secs]];
-}
-
 void nowplaying_clear(void *center) {
     MPNowPlayingInfoCenter *c = (__bridge MPNowPlayingInfoCenter *)center;
     c.nowPlayingInfo = nil;
