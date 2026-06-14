@@ -20,6 +20,7 @@ class MacOSMediaSession(private val getPositionMs: (() -> Long)?) : MediaSession
         adapter.registerCallbacks(
             onPlay     = { onPlay?.invoke() },
             onPause    = { onPause?.invoke() },
+            onToggle   = { onPlayPause?.invoke() },
             onStop     = { onStop?.invoke() },
             onNext     = { onNext?.invoke() },
             onPrevious = { onPrevious?.invoke() },

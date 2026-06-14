@@ -8,6 +8,7 @@ typedef void (*nowplaying_rate_cb)(double rate);
 
 static nowplaying_simple_cb _cb_play     = NULL;
 static nowplaying_simple_cb _cb_pause    = NULL;
+static nowplaying_simple_cb _cb_toggle   = NULL;
 static nowplaying_simple_cb _cb_stop     = NULL;
 static nowplaying_simple_cb _cb_next     = NULL;
 static nowplaying_simple_cb _cb_previous = NULL;
@@ -21,6 +22,7 @@ void* nowplaying_default_center(void) {
 void nowplaying_register_commands_with_callbacks(
     nowplaying_simple_cb on_play,
     nowplaying_simple_cb on_pause,
+    nowplaying_simple_cb on_toggle,
     nowplaying_simple_cb on_stop,
     nowplaying_simple_cb on_next,
     nowplaying_simple_cb on_previous,
@@ -29,6 +31,7 @@ void nowplaying_register_commands_with_callbacks(
 {
     _cb_play     = on_play;
     _cb_pause    = on_pause;
+    _cb_toggle   = on_toggle;
     _cb_stop     = on_stop;
     _cb_next     = on_next;
     _cb_previous = on_previous;
@@ -39,6 +42,7 @@ void nowplaying_register_commands_with_callbacks(
 
     rcc.playCommand.enabled                   = YES;
     rcc.pauseCommand.enabled                  = YES;
+    rcc.togglePlayPauseCommand.enabled        = YES;
     rcc.stopCommand.enabled                   = YES;
     rcc.nextTrackCommand.enabled              = YES;
     rcc.previousTrackCommand.enabled          = YES;
@@ -51,6 +55,10 @@ void nowplaying_register_commands_with_callbacks(
     }];
     [rcc.pauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *e) {
         if (_cb_pause) _cb_pause();
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    [rcc.togglePlayPauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *e) {
+        if (_cb_toggle) _cb_toggle();
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     [rcc.stopCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent *e) {

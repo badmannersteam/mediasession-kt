@@ -11,6 +11,7 @@ internal class JniNowPlayingAdapter {
     // Held as fields so JNA callbacks are not garbage-collected while in use
     private var onPlayCb: SimpleCallback? = null
     private var onPauseCb: SimpleCallback? = null
+    private var onToggleCb: SimpleCallback? = null
     private var onStopCb: SimpleCallback? = null
     private var onNextCb: SimpleCallback? = null
     private var onPreviousCb: SimpleCallback? = null
@@ -22,6 +23,7 @@ internal class JniNowPlayingAdapter {
     fun registerCallbacks(
         onPlay: (() -> Unit)?,
         onPause: (() -> Unit)?,
+        onToggle: (() -> Unit)?,
         onStop: (() -> Unit)?,
         onNext: (() -> Unit)?,
         onPrevious: (() -> Unit)?,
@@ -30,6 +32,7 @@ internal class JniNowPlayingAdapter {
     ) {
         onPlayCb     = onPlay?.let { SimpleCallback(it) }
         onPauseCb    = onPause?.let { SimpleCallback(it) }
+        onToggleCb   = onToggle?.let { SimpleCallback(it) }
         onStopCb     = onStop?.let { SimpleCallback(it) }
         onNextCb     = onNext?.let { SimpleCallback(it) }
         onPreviousCb = onPrevious?.let { SimpleCallback(it) }
@@ -37,9 +40,8 @@ internal class JniNowPlayingAdapter {
         onRateCb     = onRate?.let { RateCallback(it) }
 
         lib.nowplaying_register_commands_with_callbacks(
-            onPlayCb, onPauseCb, onStopCb,
-            onNextCb, onPreviousCb,
-            onSeekCb, onRateCb
+            onPlayCb, onPauseCb, onToggleCb, onStopCb,
+            onNextCb, onPreviousCb, onSeekCb, onRateCb
         )
     }
 
@@ -73,6 +75,7 @@ private interface NowPlayingLibrary : Library {
     fun nowplaying_register_commands_with_callbacks(
         onPlay: SimpleCallback?,
         onPause: SimpleCallback?,
+        onToggle: SimpleCallback?,
         onStop: SimpleCallback?,
         onNext: SimpleCallback?,
         onPrevious: SimpleCallback?,
