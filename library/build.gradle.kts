@@ -33,6 +33,13 @@ kotlin {
                 implementation("net.java.dev.jna:jna-jpms:5.15.0")
             }
         }
+
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation("org.mockito:mockito-core:5.12.0")
+            }
+        }
     }
 }
 

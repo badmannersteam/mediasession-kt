@@ -36,7 +36,7 @@ abstract class MprisProperties {
             MprisProperty.CanGoPrevious -> createDBusVariant(session.onPrevious != null)
             MprisProperty.CanPlay -> createDBusVariant(session.onPlay != null)
             MprisProperty.CanPause -> createDBusVariant(session.onPause != null)
-            MprisProperty.CanSeek -> createDBusVariant(session.onSeek != null)
+            MprisProperty.CanSeek -> createDBusVariant(session.onSeek != null || session.onSetPosition != null)
             MprisProperty.CanControl -> createDBusVariant(true)
             else -> {
                 if (!properties.contains(property)) {
@@ -46,6 +46,23 @@ abstract class MprisProperties {
                 properties[property]
             }
         }
+
+    internal fun setPosition(track_id: String, position_us: Long) {
+        if (position_us < 0L || track_id == "/org/mpris/MediaPlayer2/TrackList/NoTrack") {
+            return
+        }
+
+        val track_metadata: Map<String, DBusVariant<*>> = getTrackMetadata()
+        if (track_metadata["mpris:trackid"]?.value?.toString() != track_id) {
+            return
+        }
+
+        session.onSetPosition?.invoke(position_us / 1000L)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun getTrackMetadata(): Map<String, DBusVariant<*>> =
+        properties[MprisProperty.Metadata]?.value as? Map<String, DBusVariant<*>> ?: emptyMap()
 
     inline fun forEachProperty(action: (MprisProperty, DBusVariant<*>) -> Unit) {
         for (property in MprisProperty.entries) {

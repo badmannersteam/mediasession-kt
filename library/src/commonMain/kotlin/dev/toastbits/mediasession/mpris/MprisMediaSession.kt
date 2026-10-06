@@ -9,6 +9,26 @@ import dev.toastbits.mediasession.MediaSessionPlaybackStatus
 abstract class MprisMediaSession: MediaSessionProperties {
     abstract val properties: MprisProperties
 
+    open var onSeek: ((by_ms: Long) -> Unit)? = null
+        set(value) {
+            val was_seekable: Boolean = field != null || onSetPosition != null
+            field = value
+            notifySeekCapabilityChange(was_seekable)
+        }
+    open var onSetPosition: ((to_ms: Long) -> Unit)? = null
+        set(value) {
+            val was_seekable: Boolean = onSeek != null || field != null
+            field = value
+            notifySeekCapabilityChange(was_seekable)
+        }
+
+    private fun notifySeekCapabilityChange(was_seekable: Boolean) {
+        val can_seek: Boolean = onSeek != null || onSetPosition != null
+        if (can_seek != was_seekable) {
+            properties.setProperty(MprisProperty.CanSeek, createDBusVariant(can_seek))
+        }
+    }
+
     override val identity: String
         get() = (properties.getProperty(MprisProperty.Identity) as DBusVariant<String>).value
     override val desktop_entry: String?
@@ -57,6 +77,9 @@ abstract class MprisMediaSession: MediaSessionProperties {
                         val value = it.value
 
                         try {
+                            if (it.key == "mpris:trackid") {
+                                return@associate it.key to createDBusObjectPathVariant(value as String)
+                            }
                             if (value is List<*>) {
                                 return@associate it.key to createDBusVariant((value as List<String>).toTypedArray())
                             }

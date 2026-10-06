@@ -6,3 +6,5 @@ expect val <T> DBusVariant<T>.value: T
 
 expect fun <T> createDBusVariant(value: T, signature: String): DBusVariant<T>
 expect inline fun <reified T> createDBusVariant(value: T): DBusVariant<T>
+
+internal expect fun createDBusObjectPathVariant(path: String): DBusVariant<*>

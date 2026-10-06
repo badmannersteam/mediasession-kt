@@ -4,6 +4,7 @@ import cnames.structs.DBusConnection
 import cnames.structs.DBusMessage
 import dev.toastbits.mediasession.mpris.DBusVariant
 import dev.toastbits.mediasession.mpris.MprisProperty
+import dev.toastbits.mediasession.mpris.appendVariantToDBusIterator
 import dev.toastbits.mediasession.mpris.fromMprisLoopMode
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.DoubleVar
@@ -16,7 +17,7 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.value
-import kotlinx.cinterop.BooleanVar
+import kotlinx.cinterop.UIntVar
 import libdbus.DBUS_TYPE_INT64
 import libdbus.DBUS_TYPE_INVALID
 import libdbus.DBUS_TYPE_OBJECT_PATH
@@ -34,11 +35,27 @@ internal class PropertyMethodHandler(val session: LinuxMediaSession): MethodHand
 
     override fun processMethod(method: String, message: CValuesRef<DBusMessage>) {
         when (method) {
-            "GetAll" -> {
+            "GetAll" -> memScoped {
+                val error: DBusError = alloc()
+                val iface_bytes: CPointerVarOf<CPointer<ByteVar>> = allocPointerTo()
+
+                if (dbus_message_get_args(message, error.ptr, DBUS_TYPE_STRING, iface_bytes, DBUS_TYPE_INVALID) == 0U) {
+                    val error_message: String = error.message?.toKString() ?: "No message"
+                    throw RuntimeException("Getting GetAll argument(s) failed ($error_message)")
+                }
+
+                val iface: String? = iface_bytes.toKString()
+                if (iface == null) {
+                    replyToMessage(message)
+                    return
+                }
+
                 replyToMessage(message) {
                     buildMap {
                         session.properties.forEachProperty { key, value ->
-                            addValue(key.name, value)
+                            if (key.getInterface().iface == iface) {
+                                addValue(key.name, value)
+                            }
                         }
                     }
                 }
@@ -70,7 +87,7 @@ internal class PropertyMethodHandler(val session: LinuxMediaSession): MethodHand
                 val value: DBusVariant<*>? = session.properties.getProperty(mpris_property)
 
                 replyToMessage(message) {
-                    value?.appendToDBusMessageIterator(iterator.ptr)
+                    value?.let { appendVariantToDBusIterator(iterator.ptr, it) }
                 }
 
                 return
@@ -105,9 +122,9 @@ internal class PropertyMethodHandler(val session: LinuxMediaSession): MethodHand
                         session.onSetLoop?.invoke(value.toKString()!!.fromMprisLoopMode())
                     }
                     "Shuffle" -> {
-                        val value: BooleanVar = alloc()
+                        val value: UIntVar = alloc()
                         dbus_message_iter_get_basic(variant_iter.ptr, value.ptr)
-                        session.onSetShuffle?.invoke(value.value)
+                        session.onSetShuffle?.invoke(value.value != 0U)
                     }
                     "Rate" -> {
                         val value: DoubleVar = alloc()
@@ -118,6 +135,7 @@ internal class PropertyMethodHandler(val session: LinuxMediaSession): MethodHand
                 }
 
                 replyToMessage(message)
+                return
             }
             else -> {
                 replyToUnknownMethod(method, message)

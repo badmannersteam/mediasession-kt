@@ -1,5 +1,6 @@
 package dev.toastbits.mediasession.mpris
 
+import org.freedesktop.dbus.DBusPath
 import org.freedesktop.dbus.types.Variant
 
 actual typealias DBusVariant<T> = Variant<T>
@@ -14,3 +15,6 @@ actual fun <T> createDBusVariant(
 
 actual inline fun <reified T> createDBusVariant(value: T): DBusVariant<T> =
     Variant(value)
+
+internal actual fun createDBusObjectPathVariant(path: String): DBusVariant<*> =
+    Variant(DBusPath(path))

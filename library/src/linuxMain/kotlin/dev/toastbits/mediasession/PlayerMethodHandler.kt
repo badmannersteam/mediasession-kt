@@ -40,7 +40,7 @@ internal class PlayerMethodHandler(val session: LinuxMediaSession): MethodHandle
                     throw RuntimeException("Getting Seek argument(s) failed ($error_message)")
                 }
 
-                session.onSeek?.invoke(offset.value / 1000)
+                session.properties.seek(offset.value)
             }
             "SetPosition" -> memScoped {
                 val error: DBusError = alloc()
@@ -52,7 +52,10 @@ internal class PlayerMethodHandler(val session: LinuxMediaSession): MethodHandle
                     throw RuntimeException("Getting Seek argument(s) failed ($error_message)")
                 }
 
-                session.onSetPosition?.invoke(position.value / 1000)
+                val track_id: String? = id_bytes.value?.toKString()
+                if (track_id != null) {
+                    session.properties.setPosition(track_id, position.value)
+                }
             }
             "OpenUri" -> memScoped {
                 val error: DBusError = alloc()

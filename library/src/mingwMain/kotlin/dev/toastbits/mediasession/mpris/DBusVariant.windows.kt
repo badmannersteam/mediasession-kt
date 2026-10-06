@@ -17,3 +17,6 @@ actual inline fun <reified T> createDBusVariant(value: T): DBusVariant<T> =
 
 actual inline fun <reified T : Any> createDBusVariant(value: Array<T>): DBusVariant<Array<DBusVariant<T>>> =
     throw IllegalStateException()
+
+internal actual fun createDBusObjectPathVariant(path: String): DBusVariant<*> =
+    throw IllegalStateException()

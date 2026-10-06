@@ -16,7 +16,7 @@ fun MediaSessionMetadata.toMprisPlayerMetadata(identity: String): Map<String, An
         "mpris:artUrl" to art_url,
         "xesam:album" to album,
         "xesam:albumArtist" to album_artists,
-        "xesam:artist" to listOf(artist),
+        "xesam:artist" to artist?.let { listOf(it) },
         "xesam:asText" to lyrics,
         "xesam:audioBPM" to audio_bpm,
         "xesam:autoRating" to auto_rating,
@@ -48,7 +48,7 @@ fun Map<String, DBusVariant<*>>.fromMprisPlayerMetadata(identity: String): Media
     val custom_prefix: String = identity + ":"
 
     return MediaSessionMetadata(
-        track_id = (get("mpris:trackid")?.value ?: default.track_id) as String?,
+        track_id = get("mpris:trackid")?.value?.toString() ?: default.track_id,
         length_ms = (get("mpris:length")?.value as Long?)?.div(1000L) ?: default.length_ms,
         art_url = (get("mpris:artUrl")?.value ?: default.art_url) as String?,
         album = (get("xesam:album")?.value ?: default.album) as String?,

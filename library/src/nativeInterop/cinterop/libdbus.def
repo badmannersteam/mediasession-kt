@@ -12,3 +12,7 @@ void appendStringToDBusIter(DBusMessageIter* iter, const char* value) {
     // Raises SIGSEGV when called directly from Kotlin, no idea why
     dbus_message_iter_append_basic(iter, DBUS_TYPE_STRING, &value);
 }
+
+void appendObjectPathToDBusIter(DBusMessageIter* iter, const char* value) {
+    dbus_message_iter_append_basic(iter, DBUS_TYPE_OBJECT_PATH, &value);
+}

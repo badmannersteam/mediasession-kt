@@ -42,8 +42,6 @@ open class LinuxMediaSession: MprisMediaSession(), MediaSession, MediaSessionPro
     override var onPlayPause: (() -> Unit)? = null
     override var onStop: (() -> Unit)? = null
     override var onPlay: (() -> Unit)? = null
-    override var onSeek: ((by_ms: Long) -> Unit)? = null
-    override var onSetPosition: ((to_ms: Long) -> Unit)? = null
     override var onOpenUri: ((uri: String) -> Unit)? = null
     override var onSetRate: ((rate: Float) -> Unit)? = null
     override var onSetLoop: ((loop_mode: MediaSessionLoopMode) -> Unit)? = null

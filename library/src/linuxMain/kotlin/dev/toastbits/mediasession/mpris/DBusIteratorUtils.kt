@@ -23,20 +23,27 @@ internal fun appendArrayToDBusIterator(
     dbus_message_iter_close_container(iterator, subarray.ptr)
 }
 
+internal fun appendVariantToDBusIterator(
+    iterator: CPointer<DBusMessageIter>,
+    value: DBusVariant<*>
+) = memScoped {
+    val variant: DBusMessageIter = alloc()
+    dbus_message_iter_open_container(iterator, DBUS_TYPE_VARIANT, value.signature, variant.ptr)
+    value.appendToDBusMessageIterator(variant.ptr)
+    dbus_message_iter_close_container(iterator, variant.ptr)
+}
+
 internal fun appendDictEntryToDBusIterator(
     iterator: CPointer<DBusMessageIter>,
     key: String,
     value: DBusVariant<*>
 ) = memScoped {
     val dict: DBusMessageIter = alloc()
-    val variant: DBusMessageIter = alloc()
 
     dbus_message_iter_open_container(iterator, DBUS_TYPE_DICT_ENTRY, null, dict.ptr)
     appendStringToDBusIter(dict.ptr, key)
 
-    dbus_message_iter_open_container(dict.ptr, DBUS_TYPE_VARIANT, value.signature, variant.ptr)
-    value.appendToDBusMessageIterator(variant.ptr)
-    dbus_message_iter_close_container(dict.ptr, variant.ptr)
+    appendVariantToDBusIterator(dict.ptr, value)
 
     dbus_message_iter_close_container(iterator, dict.ptr)
 }

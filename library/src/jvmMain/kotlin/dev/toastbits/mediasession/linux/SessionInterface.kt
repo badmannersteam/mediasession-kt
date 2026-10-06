@@ -15,6 +15,10 @@ internal class SessionInterface(
     private val connection: DBusConnection
 ): MprisProperties(), MediaInterface, PlayerInterface, Properties {
     override fun emitPropertyChange(property: MprisProperty, value: DBusVariant<*>?) {
+        if (!session.enabled) {
+            return
+        }
+
         connection.sendMessage(
             Properties.PropertiesChanged(
                 objectPath,
@@ -31,6 +35,9 @@ internal class SessionInterface(
     override fun <A> Get(interface_name: String, property_name: String): A? {
         val property: MprisProperty =
             MprisProperty.entries.firstOrNull { it.name == property_name } ?: return null
+        if (property.getInterface().iface != interface_name) {
+            return null
+        }
         return getProperty(property) as A?
     }
 
@@ -55,7 +62,9 @@ internal class SessionInterface(
     override fun GetAll(interface_name: String): Map<String, Variant<*>> =
         buildMap {
             forEachProperty { key, value ->
-                put(key.name, value)
+                if (key.getInterface().iface == interface_name) {
+                    put(key.name, value)
+                }
             }
         }
 
@@ -84,10 +93,10 @@ internal class SessionInterface(
         session.onPlay?.invoke()
     }
     override fun Seek(by_ms: Long) {
-        session.onSeek?.invoke(by_ms)
+        session.onSeek?.invoke(by_ms / 1000L)
     }
     override fun SetPosition(arg0: DBusPath, to_ms: Long) {
-        session.onSetPosition?.invoke(to_ms)
+        setPosition(arg0.path, to_ms)
     }
     override fun OpenUri(uri: String) {
         session.onOpenUri?.invoke(uri)

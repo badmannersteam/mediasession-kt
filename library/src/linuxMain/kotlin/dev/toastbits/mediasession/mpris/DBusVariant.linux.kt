@@ -1,10 +1,10 @@
 package dev.toastbits.mediasession.mpris
 
-import kotlinx.cinterop.BooleanVar
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.DoubleVar
 import kotlinx.cinterop.IntVar
 import kotlinx.cinterop.LongVar
+import kotlinx.cinterop.UIntVar
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.cstr
 import kotlinx.cinterop.memScoped
@@ -18,6 +18,7 @@ import libdbus.DBUS_TYPE_INT64
 import libdbus.DBUS_TYPE_VARIANT
 import libdbus.DBUS_TYPE_VARIANT_AS_STRING
 import libdbus.DBusMessageIter
+import libdbus.appendObjectPathToDBusIter
 import libdbus.appendStringToDBusIter
 import libdbus.dbus_message_iter_append_basic
 import libdbus.dbus_message_iter_close_container
@@ -48,10 +49,17 @@ actual data class DBusVariant<T>(val value: T, val signature: String) {
         }
 
         when (value) {
-            is String -> appendStringToDBusIter(iterator, value)
+            is String -> {
+                if (signature == "o") {
+                    appendObjectPathToDBusIter(iterator, value)
+                }
+                else {
+                    appendStringToDBusIter(iterator, value)
+                }
+            }
             is Boolean -> memScoped {
-                val holder: BooleanVar = alloc()
-                holder.value = value
+                val holder: UIntVar = alloc()
+                holder.value = if (value) 1U else 0U
                 dbus_message_iter_append_basic(iterator, DBUS_TYPE_BOOLEAN, holder.ptr)
             }
             is Double -> memScoped {
@@ -103,6 +111,9 @@ actual val <T> DBusVariant<T>.value: T get() = this.value
 
 actual fun <T> createDBusVariant(value: T, signature: String): DBusVariant<T> =
     DBusVariant(value, signature)
+
+internal actual fun createDBusObjectPathVariant(path: String): DBusVariant<*> =
+    DBusVariant(path, "o")
 
 actual inline fun <reified T> createDBusVariant(value: T): DBusVariant<T> =
     try {
