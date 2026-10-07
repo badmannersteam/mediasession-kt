@@ -131,6 +131,11 @@ internal class PropertyMethodHandler(val session: LinuxMediaSession): MethodHand
                         dbus_message_iter_get_basic(variant_iter.ptr, value.ptr)
                         session.onSetRate?.invoke(value.value.toFloat())
                     }
+                    "Volume" -> {
+                        val value: DoubleVar = alloc()
+                        dbus_message_iter_get_basic(variant_iter.ptr, value.ptr)
+                        session.onSetVolume?.invoke(value.value.coerceAtLeast(0.0).toFloat())
+                    }
                     else -> {}
                 }
 

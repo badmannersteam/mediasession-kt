@@ -68,6 +68,10 @@ fun main() {
     session.onSetShuffle = { shuffle_mode ->
         println("onSetShuffle $shuffle_mode called")
     }
+    session.onSetVolume = { volume ->
+        println("onSetVolume $volume called")
+        session.setVolume(volume)
+    }
 
     session.setIdentity("mediasessionkt.sample")
     session.setDesktopEntry("mediasession")

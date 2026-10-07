@@ -42,7 +42,7 @@ abstract class MprisMediaSession: MediaSessionProperties {
     override val shuffle: Boolean
         get() = (properties.getProperty(MprisProperty.Shuffle) as DBusVariant<Boolean?>).value ?: false
     override val volume: Float
-        get() = (properties.getProperty(MprisProperty.Volume) as DBusVariant<Float>).value
+        get() = (properties.getProperty(MprisProperty.Volume) as DBusVariant<Double>).value.toFloat()
     override val rate: Float
         get() = (properties.getProperty(MprisProperty.Rate) as DBusVariant<Float>).value
     override val metadata: MediaSessionMetadata
@@ -60,7 +60,7 @@ abstract class MprisMediaSession: MediaSessionProperties {
     override fun setSupportedMimeTypes(supported_mime_types: List<String>) = properties.setProperty(MprisProperty.SupportedMimeTypes, createDBusVariant(supported_mime_types.toTypedArray()))
     override fun setLoopMode(loop_mode: MediaSessionLoopMode) = properties.setProperty(MprisProperty.LoopStatus, createDBusVariant(loop_mode.toMprisLoopMode()))
     override fun setShuffle(shuffle: Boolean) = properties.setProperty(MprisProperty.Shuffle, createDBusVariant(shuffle))
-    override fun setVolume(volume: Float) = properties.setProperty(MprisProperty.Volume, createDBusVariant(volume))
+    override fun setVolume(volume: Float) = properties.setProperty(MprisProperty.Volume, createDBusVariant(volume.toDouble()))
     override fun setRate(rate: Float) = properties.setProperty(MprisProperty.Rate, createDBusVariant(rate))
     override fun setPlaybackStatus(status: MediaSessionPlaybackStatus) = properties.setProperty(MprisProperty.PlaybackStatus, createDBusVariant(status.toMprisPlaybackStatus()))
     override fun setMaximumRate(maximum_rate: Float) = properties.setProperty(MprisProperty.MaximumRate, createDBusVariant(maximum_rate))

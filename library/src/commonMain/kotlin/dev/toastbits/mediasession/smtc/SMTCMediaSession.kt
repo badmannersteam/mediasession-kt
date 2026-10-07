@@ -103,6 +103,7 @@ open class SMTCMediaSession(private val smtc: SMTCAdapter, initWinRtApartment: B
     override var onPlayPause: (() -> Unit)? = null
     override var onSeek: ((by_ms: Long) -> Unit)? = null
     override var onOpenUri: ((uri: String) -> Unit)? = null
+    override var onSetVolume: ((volume: Float) -> Unit)? = null
 
     override fun onPositionChanged() {
         smtc.setPosition(getPositionMs())

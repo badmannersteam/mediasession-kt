@@ -197,6 +197,7 @@ open class LinuxMediaSession: MprisMediaSession(), MediaSession, MediaSessionPro
     override var onSetRate: ((rate: Float) -> Unit)? = null
     override var onSetLoop: ((loop_mode: MediaSessionLoopMode) -> Unit)? = null
     override var onSetShuffle: ((shuffle_mode: Boolean) -> Unit)? = null
+    override var onSetVolume: ((volume: Float) -> Unit)? = null
 
     override fun onPositionChanged() = memScoped {
         val message: CPointer<DBusMessage> =

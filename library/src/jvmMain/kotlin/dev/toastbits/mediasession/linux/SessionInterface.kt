@@ -52,6 +52,15 @@ internal class SessionInterface(
             "Rate" -> {
                 session.onSetRate?.invoke((value as Double).toFloat())
             }
+            "Volume" -> {
+                if (interface_name != MprisConstants.Interface.PLAYER.iface) {
+                    return
+                }
+                val volume: Double = (value as Double).coerceAtLeast(0.0)
+                session.onSetVolume?.invoke(volume.toFloat())
+                onPropertySet(MprisProperty.Volume, Variant(volume))
+                return
+            }
         }
 
         val property: MprisProperty =

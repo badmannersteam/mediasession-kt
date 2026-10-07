@@ -57,6 +57,7 @@ class MacOSMediaSession(private val getPositionMs: (() -> Long)?) : MediaSession
     override var onSetRate: ((rate: Float) -> Unit)? = null
     override var onSetLoop: ((loop_mode: MediaSessionLoopMode) -> Unit)? = null
     override var onSetShuffle: ((shuffle_mode: Boolean) -> Unit)? = null
+    override var onSetVolume: ((volume: Float) -> Unit)? = null
 
     override fun getPositionMs(): Long = getPositionMs?.invoke() ?: 0
 

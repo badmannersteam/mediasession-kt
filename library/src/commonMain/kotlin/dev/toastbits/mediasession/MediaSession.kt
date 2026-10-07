@@ -18,6 +18,7 @@ interface MediaSession: MediaSessionProperties {
     var onSetRate: ((rate: Float) -> Unit)?
     var onSetLoop: ((loop_mode: MediaSessionLoopMode) -> Unit)?
     var onSetShuffle: ((shuffle_mode: Boolean) -> Unit)?
+    var onSetVolume: ((volume: Float) -> Unit)?
 
     fun getPositionMs(): Long = 0
     fun onPositionChanged()

@@ -255,6 +255,90 @@ class MprisPlayerTest {
         assertEquals(Long::class.java, annotation.type.java)
     }
 
+    @Test
+    fun setVolumeForwardsDoubleRequestsAsFloats() {
+        val volumes: MutableList<Float> = mutableListOf()
+        session.onSetVolume = { volumes.add(it) }
+        session.onSetRate = { error("Volume requests must not change rate") }
+        session.onSetLoop = { error("Volume requests must not change loop mode") }
+        session.onSetShuffle = { error("Volume requests must not change shuffle mode") }
+
+        for (volume in listOf(0.0, 0.25, 1.0, 1.5)) {
+            player.Set(MprisConstants.Interface.PLAYER.iface, "Volume", volume)
+            assertEquals(volume.toFloat(), session.volume)
+        }
+
+        assertEquals(listOf(0f, 0.25f, 1f, 1.5f), volumes)
+    }
+
+    @Test
+    fun setVolumeClampsNegativeRequestsToZero() {
+        var volume: Float? = null
+        session.onSetVolume = { volume = it }
+
+        player.Set(MprisConstants.Interface.PLAYER.iface, "Volume", -0.5)
+
+        assertEquals(0f, volume)
+        assertEquals(0f, session.volume)
+        assertEquals(0.0, player.Get<Variant<Double>>(MprisConstants.Interface.PLAYER.iface, "Volume")!!.value)
+    }
+
+    @Test
+    fun volumeCallbackCanBeReplacedAndCleared() {
+        val volumes: MutableList<Float> = mutableListOf()
+        player.Set(MprisConstants.Interface.PLAYER.iface, "Volume", 0.1)
+        session.onSetVolume = { error("Replaced callback must not be invoked") }
+        session.onSetVolume = { volumes.add(it) }
+        player.Set(MprisConstants.Interface.PLAYER.iface, "Volume", 0.25)
+        session.onSetVolume = null
+        player.Set(MprisConstants.Interface.PLAYER.iface, "Volume", 0.5)
+
+        assertEquals(listOf(0.25f), volumes)
+    }
+
+    @Test
+    fun setVolumeIgnoresOtherInterfaces() {
+        session.onSetVolume = { error("Volume is only writable on the player interface") }
+
+        player.Set(MprisConstants.Interface.GENERAL.iface, "Volume", 0.25)
+        player.Set("invalid.interface", "Volume", 0.5)
+
+        assertEquals(1.0, player.getProperty(MprisProperty.Volume)!!.value)
+    }
+
+    @Test
+    fun volumeUsesDoubleOnTheWireAndFloatInTheSession() {
+        assertEquals(1f, session.volume)
+        session.onSetVolume = { error("Publishing volume must not invoke the request callback") }
+
+        session.setVolume(0.25f)
+
+        assertEquals(0.25f, session.volume)
+        val volume = player.Get<Variant<Double>>(MprisConstants.Interface.PLAYER.iface, "Volume")!!
+        assertEquals(0.25, volume.value)
+        assertEquals("d", volume.sig)
+    }
+
+    @Test
+    fun volumeCallbackCanPublishTheRequestedVolume() {
+        var calls: Int = 0
+        session.onSetVolume = {
+            calls++
+            session.setVolume(it)
+        }
+
+        player.Set(MprisConstants.Interface.PLAYER.iface, "Volume", 0.25)
+
+        assertEquals(1, calls)
+        assertEquals(0.25f, session.volume)
+        val signals = Mockito.mockingDetails(connection).invocations
+            .filter { it.method.name == "sendMessage" }
+            .map { it.arguments[0] }
+        assertEquals(1, signals.size)
+        val signal = assertIs<Properties.PropertiesChanged>(signals.single())
+        assertEquals(0.25, signal.propertiesChanged.getValue("Volume").value)
+    }
+
     private class TestSession(connection: DBusConnection): MprisMediaSession(), MediaSession {
         override val properties: SessionInterface = SessionInterface(this, connection)
         override val enabled: Boolean = true
@@ -275,5 +359,6 @@ class MprisPlayerTest {
         override var onSetRate: ((rate: Float) -> Unit)? = null
         override var onSetLoop: ((loop_mode: MediaSessionLoopMode) -> Unit)? = null
         override var onSetShuffle: ((shuffle_mode: Boolean) -> Unit)? = null
+        override var onSetVolume: ((volume: Float) -> Unit)? = null
     }
 }
